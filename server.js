@@ -1,10 +1,22 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
-// const routes = require("./routes");
+//const routes = require("./routes");
 const app = express();
 const PORT = process.env.PORT || 3001;
-var User = require("./models/User");
+const session = require('express-session');
+const router = express.Router();
+const sess = {
+  secret: 'doesnt0matter',
+  cookie: {
+    maxAge: 500000
+  },
+  resave: true,
+  saveUninitialized: true
+}
+var User = require("./models/user");
+
+app.use(session(sess));
 
 // Define middleware here
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -13,6 +25,10 @@ app.use(bodyParser.json());
 if (process.env.NODE_ENV === "production") {
   app.use(express.static("client/build"));
 }
+
+app.get("/test", function(req, res) {
+  console.log("works!");
+})
 // Add routes, both API and view
 // app.use(routes);
 
@@ -33,10 +49,12 @@ dbConnect.once("open", function() {
 //test route
 
 app.get("/", function(req, res) {
+  console.log(req.session);
   User.find({}, function(error, data) {
     var hbsObject = {
       User: data
     };
+    res.redirect("/");
     console.log(hbsObject);
   });
 });
