@@ -6,22 +6,23 @@ const userSchema = new Schema({
     type: String,
     unique: true,
     trim: true,
-    match: [[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}, 'Please enter a valid email address']
+    required: true,
+    match: [/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/, 'Please enter a valid email address']
   },
-  password: { 
+  hash: { 
     type: String,
     trim: true, 
     required: [true, 'Password is required'] 
   },
-  name: {
-    first: {
+  first: {
       type: String,
-      trim: true
-    },
-    last: {
+      trim: true,
+      required: true
+  },
+  last: {
       type: String,
-      trim: true
-    }
+      trim: true,
+      required: true
   },
   location: {
     address: {
@@ -46,12 +47,14 @@ const userSchema = new Schema({
       message: props => `${props.value} is not a valid phone number!`
     }
   },
-  volunteerRadius: String,
+  volunteerRadius: Number,
   userCreated: {
     type: Date,
     default: Date.now
   }
 });
+
+userSchema.set("toJSON", { virtuals: true });
 
 const User = mongoose.model("User", userSchema);
 

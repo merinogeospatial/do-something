@@ -1,10 +1,11 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
-// const routes = require("./routes");
+const routes = require("./routes");
 const app = express();
 const PORT = process.env.PORT || 3001;
-var User = require("./models/User");
+const jwt = require('./auth/jwt');
+const errorHandler = require('./auth/error-handler');
 
 // Define middleware here
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -13,9 +14,13 @@ app.use(bodyParser.json());
 if (process.env.NODE_ENV === "production") {
   app.use(express.static("client/build"));
 }
-// Add routes, both API and view
-// app.use(routes);
 
+app.use(jwt());
+
+// Add routes, both API and view
+app.use(routes);
+
+app.use(errorHandler);
 // Connect to the Mongo DB
 mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/dosomething");
 
@@ -30,16 +35,7 @@ dbConnect.once("open", function() {
   console.log("Mongoose connection successful.");
 });
 
-//test route
 
-app.get("/", function(req, res) {
-  User.find({}, function(error, data) {
-    var hbsObject = {
-      User: data
-    };
-    console.log(hbsObject);
-  });
-});
 
 // Start the API server
 app.listen(PORT, function() {
